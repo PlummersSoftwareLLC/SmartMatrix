@@ -84,8 +84,33 @@ class SMLayerBackground : public SM_Layer {
         void setBrightness(uint8_t brightness);
         void enableColorCorrection(bool enabled);
 
+
+        RGB getChromaKeyColor()
+        {
+            return chromaKeyColor;
+        }
+
+        void setChromaKeyColor(RGB color)
+        {
+            chromaKeyColor = color;
+        }
+
+        void enableChromaKey(bool bEnabled)
+        {
+            bEnableChromaKey = bEnabled;
+        }
+
+        bool isChromaKeyEnabled()
+        {
+            return bEnableChromaKey;
+        }
+
+
     protected:
         bool ccEnabled = true;
+
+        RGB chromaKeyColor = RGB(255,0,255);
+        bool bEnableChromaKey = false;
 
         RGB *currentDrawBufferPtr;
         RGB *currentRefreshBufferPtr;

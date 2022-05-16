@@ -81,27 +81,6 @@ class SMLayerBackgroundGFX : public SM_Layer, public Adafruit_GFX {
         void enableColorCorrection(bool enabled);
         void setRotation(rotationDegrees newrotation);
 
-        RGB getChromaKeyColor()
-        {
-            return chromaKeyColor;
-        }
-
-        void setChromaKeyColor(RGB color)
-        {
-            chromaKeyColor = color;
-        }
-
-        void enableChromaKey(bool bEnabled)
-        {
-            bEnableChromaKey = bEnabled;
-        }
-
-        bool isChromaKeyEnabled()
-        {
-            return bEnableChromaKey;
-        }
-
-
         /* Shared SmartMatrix Library 3.0 Backwards Compatibility */
 #ifdef SM_BACKGROUND_GFX_BACKWARDS_COMPATIBILITY
         void drawChar(int16_t x, int16_t y, const RGB& charColor, char character);
