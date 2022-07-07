@@ -107,84 +107,120 @@ void SMLayerBackground<RGB, optionFlags>::setBrightnessShifts(int numShifts) {
 }
 
 template <typename RGB, unsigned int optionFlags>
-void SMLayerBackground<RGB, optionFlags>::fillRefreshRow(uint16_t hardwareY, rgb48 refreshRow[], int brightnessShifts) {
+void SMLayerBackground<RGB, optionFlags>::fillRefreshRow(uint16_t hardwareY, rgb48 refreshRow[], int brightnessShifts) 
+{
     RGB currentPixel;
-    int i;
+    double brightLower = (255.0-backgroundBrightness) / 255.0;
+    double brightUpper = backgroundBrightness / 255.0;
 
     RGB *ptr = currentRefreshBufferPtr + (hardwareY * this->matrixWidth);
 
-    if(this->ccEnabled) {
-        for(i=0; i<this->matrixWidth; i++) {
+    if(this->ccEnabled) 
+    {
+        for(int i=0; i<this->matrixWidth; i++)
+        {
             currentPixel = *ptr++;
-            // load background pixel with color correction
+
+            if (isChromaKeyEnabled() && currentPixel == getChromaKeyColor())
+                continue;
+
+            RGB newPixel;
             if(sizeof(RGB) <= 3) {
                 // 24-bit source (8 bits per color channel): backgroundColorCorrectionLUT expects 8-bit value, returns 16-bit value
-                refreshRow[i] = rgb48(backgroundColorCorrectionLUT[currentPixel.red << brightnessShifts],
+                newPixel = rgb48(backgroundColorCorrectionLUT[currentPixel.red << brightnessShifts],
                     backgroundColorCorrectionLUT[currentPixel.green << brightnessShifts],
                     backgroundColorCorrectionLUT[currentPixel.blue << brightnessShifts]);                
             } else {
                 // 48-bit source (16 bits per color channel): backgroundColorCorrectionLUT expects 12-bit value, returns 16-bit value
-                refreshRow[i] = rgb48(backgroundColorCorrectionLUT[currentPixel.red >> (4 - brightnessShifts)],
+                newPixel = rgb48(backgroundColorCorrectionLUT[currentPixel.red >> (4 - brightnessShifts)],
                     backgroundColorCorrectionLUT[currentPixel.green >> (4 - brightnessShifts)],
                     backgroundColorCorrectionLUT[currentPixel.blue >> (4 - brightnessShifts)]);
             }
+
+            refreshRow[i] =  refreshRow[i] * brightLower + newPixel * brightUpper;
         }
-    } else {
-        for(i=0; i<this->matrixWidth; i++) {
+    } 
+    else 
+    {
+        for(int i=0; i<this->matrixWidth; i++) 
+        {
             currentPixel = *ptr++;
+
+            if (isChromaKeyEnabled() && currentPixel == getChromaKeyColor())
+                continue;
+
             // load background pixel without color correction
+            RGB newPixel;
             if(sizeof(RGB) <= 3) {
-                // 24-bit source (8 bits per color channel): shift to fit in 16-bit color channel
-                refreshRow[i] = rgb48(currentPixel.red << (brightnessShifts + 8),
-                    currentPixel.green << (brightnessShifts + 8),
-                    currentPixel.blue << (brightnessShifts + 8));
-            } else {
-                // 48-bit source (16 bits per color channel): no shifting needed to fit in 16-bit color channel
-                refreshRow[i] = rgb48(currentPixel.red << brightnessShifts,
+                newPixel = rgb24(currentPixel.red << brightnessShifts,
                     currentPixel.green << brightnessShifts,
-                    currentPixel.blue << brightnessShifts);                
+                    currentPixel.blue << brightnessShifts);
+            } else {
+                newPixel = rgb48(currentPixel.red << brightnessShifts,
+                    currentPixel.green << brightnessShifts,
+                    currentPixel.blue << brightnessShifts);
             }
-        }
+            refreshRow[i] =  refreshRow[i] * brightLower + newPixel * brightUpper;
+        }    
     }
 }
 
 template <typename RGB, unsigned int optionFlags>
-void SMLayerBackground<RGB, optionFlags>::fillRefreshRow(uint16_t hardwareY, rgb24 refreshRow[], int brightnessShifts) {
+void SMLayerBackground<RGB, optionFlags>::fillRefreshRow(uint16_t hardwareY, rgb24 refreshRow[], int brightnessShifts) 
+{
     RGB currentPixel;
-    int i;
+    double brightLower = (255.0-backgroundBrightness) / 255.0;
+    double brightUpper = backgroundBrightness / 255.0;
 
     RGB *ptr = currentRefreshBufferPtr + (hardwareY * this->matrixWidth);
 
-    if(this->ccEnabled) {
-        for(i=0; i<this->matrixWidth; i++) {
+    if(this->ccEnabled) 
+    {
+        for(int i=0; i<this->matrixWidth; i++)
+        {
             currentPixel = *ptr++;
-            // load background pixel with color correction
+
+            if (isChromaKeyEnabled() && currentPixel == getChromaKeyColor())
+                continue;
+
+            RGB newPixel;
             if(sizeof(RGB) <= 3) {
                 // 24-bit source (8 bits per color channel): backgroundColorCorrectionLUT expects 8-bit value, returns 16-bit value
-                refreshRow[i] = rgb48(backgroundColorCorrectionLUT[currentPixel.red << brightnessShifts],
+                newPixel = rgb48(backgroundColorCorrectionLUT[currentPixel.red << brightnessShifts],
                     backgroundColorCorrectionLUT[currentPixel.green << brightnessShifts],
                     backgroundColorCorrectionLUT[currentPixel.blue << brightnessShifts]);                
             } else {
                 // 48-bit source (16 bits per color channel): backgroundColorCorrectionLUT expects 12-bit value, returns 16-bit value
-                refreshRow[i] = rgb48(backgroundColorCorrectionLUT[currentPixel.red >> (4 - brightnessShifts)],
+                newPixel = rgb48(backgroundColorCorrectionLUT[currentPixel.red >> (4 - brightnessShifts)],
                     backgroundColorCorrectionLUT[currentPixel.green >> (4 - brightnessShifts)],
                     backgroundColorCorrectionLUT[currentPixel.blue >> (4 - brightnessShifts)]);
             }
+
+            refreshRow[i] =  refreshRow[i] * brightLower + newPixel * brightUpper;
         }
-    } else {
-        for(i=0; i<this->matrixWidth; i++) {
+    } 
+    else 
+    {
+        for(int i=0; i<this->matrixWidth; i++) 
+        {
             currentPixel = *ptr++;
+
+            if (isChromaKeyEnabled() && currentPixel == getChromaKeyColor())
+                continue;
+
             // load background pixel without color correction
+            RGB newPixel;
             if(sizeof(RGB) <= 3) {
-                refreshRow[i] = rgb24(currentPixel.red << brightnessShifts,
+                newPixel = rgb24(currentPixel.red << brightnessShifts,
                     currentPixel.green << brightnessShifts,
                     currentPixel.blue << brightnessShifts);
             } else {
-                refreshRow[i] = rgb48(currentPixel.red << brightnessShifts,
+                newPixel = rgb48(currentPixel.red << brightnessShifts,
                     currentPixel.green << brightnessShifts,
                     currentPixel.blue << brightnessShifts);
             }
-        }
+            refreshRow[i] =  refreshRow[i] * brightLower + newPixel * brightUpper;
+        }    
     }
 }
 

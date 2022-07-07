@@ -25,6 +25,7 @@
 #define _MATRIX_COMMON_H_
 
 #include <stdint.h>
+#include <algorithm>
 
 #ifdef ARDUINO_ARCH_AVR
 #include "Arduino.h"
@@ -123,6 +124,8 @@ typedef struct rgb16 { // RGB565
     rgb16& operator=(const rgb24& col);
     rgb16& operator=(const rgb48& col);
     rgb16& operator=(const uint16_t& col);
+    bool operator==(const rgb24& col);
+
     rgb16( const rgb8& col );
     rgb16( const rgb24& col );
     rgb16( const rgb48& col );
@@ -146,6 +149,12 @@ typedef struct rgb24 {
     rgb24& operator=(const rgb16& col);
     rgb24& operator=(const rgb24& col);
     rgb24& operator=(const rgb48& col);
+    
+    bool operator==(const rgb24& col);
+
+    rgb24 operator*(double d);
+    rgb24 operator+(const rgb24 & other);
+
     rgb24( const rgb8& col);
     rgb24( const rgb16& col);
     rgb24( const rgb24& col);
@@ -167,6 +176,11 @@ typedef struct rgb48 {
     rgb48& operator=(const rgb8& col);
     rgb48& operator=(const rgb16& col);
     rgb48& operator=(const rgb24& col);
+    bool operator==(const rgb48& col);
+
+    rgb48 operator*(double d);
+    rgb48 operator+(const rgb48 & other);    
+    
     rgb48( const rgb8& col);
     rgb48( const rgb16& col);
     rgb48( const rgb24& col);
@@ -286,6 +300,28 @@ inline rgb24& rgb24::operator=(const rgb48& col) {
     blue = col.blue >> 8;
     return *this;
 }
+inline bool rgb24::operator==(const rgb24& col)
+{
+    return col.red == red && col.green == green && col.blue == blue;
+}
+
+inline rgb24 rgb24::operator*(double d)
+{
+    d = std::min(1.0, d);
+    d = std::max(0.0, d);
+    rgb24 result(red*d, green*d, blue*d);
+    return result;
+}
+inline rgb24 rgb24::operator+(const rgb24 & other)
+{
+    // This caps each element at 65535    
+    rgb24 result(
+        std::min(0xFFFF, red   + other.red),
+        std::min(0xFFFF, green + other.green),
+        std::min(0xFFFF, blue  + other.blue)
+    );
+    return result;
+}
 inline rgb24::rgb24(const rgb8& col) {
     red =   cs_scale3to8[col.red];      // 3 -> 8
     green = cs_scale3to8[col.green];    // 3 -> 8
@@ -330,6 +366,30 @@ inline rgb48& rgb48::operator=(const rgb24& col) {
     blue = (col.blue << 8) | col.blue;
     return *this;
 }
+inline bool rgb48::operator==(const rgb48& col)
+{
+    return col.red == red && col.green == green && col.blue == blue;
+}
+
+inline rgb48 rgb48::operator*(double d)
+{
+    d = std::min(1.0, d);
+    d = std::max(0.0, d);
+    rgb48 result(red*d, green*d, blue*d);
+    return result;
+}
+
+inline rgb48 rgb48::operator+(const rgb48 & other)
+{
+    // This caps each element at 65535
+    rgb48 result(
+        std::min(0xFFFF, red   + other.red),
+        std::min(0xFFFF, green + other.green),
+        std::min(0xFFFF, blue  + other.blue)
+    );
+    return result;
+}
+
 inline rgb48::rgb48(const rgb8& col) {
     red =   cs_scale3to16[col.red];     // 3 -> 16
     green = cs_scale3to16[col.green];   // 3 -> 16
@@ -346,6 +406,7 @@ inline rgb48::rgb48(const rgb24& col) {
     green = (col.green << 8)  | col.green;
     blue = (col.blue << 8) | col.blue;
 }
+
 inline rgb48::rgb48(const rgb48& col) {
     red = col.red;
     green = col.green;
