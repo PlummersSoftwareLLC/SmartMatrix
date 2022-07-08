@@ -153,6 +153,7 @@ typedef struct rgb24 {
     bool operator==(const rgb24& col);
 
     rgb24 operator*(double d);
+    rgb24 operator/(double d);    
     rgb24 operator+(const rgb24 & other);
 
     rgb24( const rgb8& col);
@@ -179,6 +180,7 @@ typedef struct rgb48 {
     bool operator==(const rgb48& col);
 
     rgb48 operator*(double d);
+    rgb48 operator/(double d);
     rgb48 operator+(const rgb48 & other);    
     
     rgb48( const rgb8& col);
@@ -312,6 +314,16 @@ inline rgb24 rgb24::operator*(double d)
     rgb24 result(red*d, green*d, blue*d);
     return result;
 }
+
+inline rgb24 rgb24::operator/(double d)
+{
+    if (d == 0)
+        return rgb24(0,0,0);
+
+    rgb24 result(red/d, green/d, blue/d);
+    return result;
+}
+
 inline rgb24 rgb24::operator+(const rgb24 & other)
 {
     // This caps each element at 65535    
@@ -376,6 +388,15 @@ inline rgb48 rgb48::operator*(double d)
     d = std::min(1.0, d);
     d = std::max(0.0, d);
     rgb48 result(red*d, green*d, blue*d);
+    return result;
+}
+
+inline rgb48 rgb48::operator/(double d)
+{
+    if (d == 0)
+        return rgb48(0,0,0);
+
+    rgb48 result(red/d, green/d, blue/d);
     return result;
 }
 
