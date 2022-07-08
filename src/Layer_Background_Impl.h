@@ -121,23 +121,26 @@ void SMLayerBackground<RGB, optionFlags>::fillRefreshRow(uint16_t hardwareY, rgb
         {
             currentPixel = *ptr++;
 
-            if (isChromaKeyEnabled() && currentPixel == getChromaKeyColor())
+            if (brightUpper == 0.0 || (isChromaKeyEnabled() && currentPixel == getChromaKeyColor()))
                 continue;
 
             RGB newPixel;
-            if(sizeof(RGB) <= 3) {
+            if(sizeof(RGB) <= 3) 
+            {
                 // 24-bit source (8 bits per color channel): backgroundColorCorrectionLUT expects 8-bit value, returns 16-bit value
                 newPixel = rgb48(backgroundColorCorrectionLUT[currentPixel.red << brightnessShifts],
                     backgroundColorCorrectionLUT[currentPixel.green << brightnessShifts],
                     backgroundColorCorrectionLUT[currentPixel.blue << brightnessShifts]);                
-            } else {
+            } 
+            else 
+            {
                 // 48-bit source (16 bits per color channel): backgroundColorCorrectionLUT expects 12-bit value, returns 16-bit value
                 newPixel = rgb48(backgroundColorCorrectionLUT[currentPixel.red >> (4 - brightnessShifts)],
                     backgroundColorCorrectionLUT[currentPixel.green >> (4 - brightnessShifts)],
                     backgroundColorCorrectionLUT[currentPixel.blue >> (4 - brightnessShifts)]);
             }
 
-            refreshRow[i] =  refreshRow[i] * brightLower + newPixel * brightUpper;
+            refreshRow[i] =  (refreshRow[i] * brightLower + newPixel * brightUpper) / (brightLower + brightUpper);
         }
     } 
     else 
@@ -151,11 +154,14 @@ void SMLayerBackground<RGB, optionFlags>::fillRefreshRow(uint16_t hardwareY, rgb
 
             // load background pixel without color correction
             RGB newPixel;
-            if(sizeof(RGB) <= 3) {
+            if(sizeof(RGB) <= 3) 
+            {
                 newPixel = rgb24(currentPixel.red << brightnessShifts,
                     currentPixel.green << brightnessShifts,
                     currentPixel.blue << brightnessShifts);
-            } else {
+            } 
+            else 
+            {
                 newPixel = rgb48(currentPixel.red << brightnessShifts,
                     currentPixel.green << brightnessShifts,
                     currentPixel.blue << brightnessShifts);
