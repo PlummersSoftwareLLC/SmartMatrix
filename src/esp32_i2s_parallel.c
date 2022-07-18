@@ -31,6 +31,8 @@
 #include "rom/lldesc.h"
 #include "esp_heap_caps.h"
 #include "esp32_i2s_parallel.h"
+#include "hal/gpio_types.h"
+#include "esp_intr_alloc.h"
 
 typedef struct {
     volatile lldesc_t *dmadesc_a, *dmadesc_b;
