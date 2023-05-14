@@ -112,6 +112,10 @@ void SMLayerBackground<RGB, optionFlags>::fillRefreshRow(uint16_t hardwareY, rgb
     if (backgroundBrightness == 0)
         return;
 
+    // If ChromaKey is enabled, and we're outside the first/last lines, we can bail
+    if (isChromaKeyEnabled() && (hardwareY < firstOverlayLine || hardwareY > lastOverlayLine))
+        return;
+
     RGB currentPixel;
     double brightLower = (255.0-backgroundBrightness) / 255.0;
     double brightUpper = backgroundBrightness / 255.0;
@@ -143,7 +147,6 @@ void SMLayerBackground<RGB, optionFlags>::fillRefreshRow(uint16_t hardwareY, rgb
                     backgroundColorCorrectionLUT[currentPixel.blue >> (4 - brightnessShifts)]);
             }
             refreshRow[i] =  (refreshRow[i] * brightLower + newPixel * brightUpper) / (brightLower + brightUpper);
-
         }
     } 
     else 
@@ -152,7 +155,7 @@ void SMLayerBackground<RGB, optionFlags>::fillRefreshRow(uint16_t hardwareY, rgb
         {
             currentPixel = *ptr++;
 
-            if (brightUpper == 0.0 || (isChromaKeyEnabled() && currentPixel == getChromaKeyColor()))
+            if (isChromaKeyEnabled() && currentPixel == getChromaKeyColor())
                 continue;
 
             // load background pixel without color correction
@@ -169,10 +172,7 @@ void SMLayerBackground<RGB, optionFlags>::fillRefreshRow(uint16_t hardwareY, rgb
                     currentPixel.green << brightnessShifts,
                     currentPixel.blue << brightnessShifts);
             }
-            if (brightLower == 1.0)
-                refreshRow[i] = newPixel;
-            else
-                refreshRow[i] =  refreshRow[i] * brightLower + newPixel * brightUpper;
+            refreshRow[i] =  refreshRow[i] * brightLower + newPixel * brightUpper;
         }    
     }
 }
@@ -181,6 +181,9 @@ template <typename RGB, unsigned int optionFlags>
 void SMLayerBackground<RGB, optionFlags>::fillRefreshRow(uint16_t hardwareY, rgb24 refreshRow[], int brightnessShifts) 
 {
     if (backgroundBrightness == 0)
+        return;
+    // If ChromaKey is enabled, and we're outside the first/last lines, we can bail
+    if (isChromaKeyEnabled() && (hardwareY < firstOverlayLine || hardwareY > lastOverlayLine))
         return;
 
     RGB currentPixel;
@@ -211,10 +214,8 @@ void SMLayerBackground<RGB, optionFlags>::fillRefreshRow(uint16_t hardwareY, rgb
                     backgroundColorCorrectionLUT[currentPixel.green >> (4 - brightnessShifts)],
                     backgroundColorCorrectionLUT[currentPixel.blue >> (4 - brightnessShifts)]);
             }
-
             if (backgroundBrightness == 255)
                 refreshRow[i] = newPixel;
-            else
                 refreshRow[i] =  refreshRow[i] * brightLower + newPixel * brightUpper;
         }
     } 

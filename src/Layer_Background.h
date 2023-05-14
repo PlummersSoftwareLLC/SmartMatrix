@@ -85,7 +85,7 @@ class SMLayerBackground : public SM_Layer {
         void enableColorCorrection(bool enabled);
 
 
-        RGB getChromaKeyColor()
+        RGB getChromaKeyColor() const
         {
             return chromaKeyColor;
         }
@@ -95,12 +95,14 @@ class SMLayerBackground : public SM_Layer {
             chromaKeyColor = color;
         }
 
-        void enableChromaKey(bool bEnabled)
+        void enableChromaKey(bool bEnabled, int firstline = 0, int lastline = 0)
         {
+            firstOverlayLine = firstline;
+            lastOverlayLine  = lastline == 0 ? matrixHeight - 1 : lastline;
             bEnableChromaKey = bEnabled;
         }
 
-        bool isChromaKeyEnabled()
+        bool isChromaKeyEnabled() const
         {
             return bEnableChromaKey;
         }
@@ -111,7 +113,8 @@ class SMLayerBackground : public SM_Layer {
 
         RGB chromaKeyColor = RGB(255,0,255);
         bool bEnableChromaKey = false;
-
+        int  firstOverlayLine = 0;
+        int  lastOverlayLine = 0;
         RGB *currentDrawBufferPtr;
         RGB *currentRefreshBufferPtr;
 
