@@ -216,6 +216,7 @@ void SMLayerBackground<RGB, optionFlags>::fillRefreshRow(uint16_t hardwareY, rgb
             }
             if (backgroundBrightness == 255)
                 refreshRow[i] = newPixel;
+            else
                 refreshRow[i] =  refreshRow[i] * brightLower + newPixel * brightUpper;
         }
     } 
